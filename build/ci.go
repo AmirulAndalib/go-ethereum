@@ -936,6 +936,9 @@ func doDockerBuildx(cmdline []string) {
 		file string
 		base string
 	}
+	// Need to create a mult-arch builder
+	build.MustRunCommand("docker","buildx","create","--use","--name","multi-arch-builder", "--platform", *platform)
+
 	for _, spec := range []dockerSpec{
 		{file: "Dockerfile", base: fmt.Sprintf("%s:x", *upload)},
 		{file: "Dockerfile.alltools", base: fmt.Sprintf("%s:alltools-x", *upload)},
