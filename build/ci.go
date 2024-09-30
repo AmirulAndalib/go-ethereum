@@ -897,7 +897,7 @@ func doDocker(cmdline []string) {
 // Builds the docker images and optionally uploads them to Docker Hub.
 func doDockerBuildx(cmdline []string) {
 	var (
-		manifest = flag.String("manifest", "", `Push a multi-arch docker image for the specified architectures (usually "amd64,arm64")`)
+		platform = flag.String("platform", "", `Push a multi-arch docker image for the specified architectures (usually "linux/amd64,linux/arm64")`)
 		upload   = flag.String("upload", "", `Where to upload the docker image (usually "ethereum/client-go")`)
 	)
 	flag.CommandLine.Parse(cmdline)
@@ -937,24 +937,19 @@ func doDockerBuildx(cmdline []string) {
 		base string
 	}
 	for _, spec := range []dockerSpec{
-		{file: "Dockerfile", base: fmt.Sprintf("%s:", *upload)},
-		{file: "Dockerfile.alltools", base: fmt.Sprintf("%s:alltools-", *upload)},
+		{file: "Dockerfile", base: fmt.Sprintf("%s:x", *upload)},
+		{file: "Dockerfile.alltools", base: fmt.Sprintf("%s:alltools-x", *upload)},
 	} {
-		var subImages []string
 		for _, tag := range tags { // latest, stable etc
 			gethImage := fmt.Sprintf("%s%s", spec.base, tag)
-			for _, arch := range strings.Split(*manifest, ",") { //amd64. arm64
-				subImage := fmt.Sprintf("%s-%s", gethImage, arch)
-				build.MustRunCommand("docker", "buildx", "build",
-					"--build-arg", "COMMIT="+env.Commit,
-					"--build-arg", "VERSION="+params.VersionWithMeta,
-					"--build-arg", "BUILDNUM="+env.Buildnum,
-					"--tag", subImage,
-					"--platform", arch, "--load", "--push",
-					"--file", spec.file, ".")
-				subImages = append(subImages, subImage)
-			}
-			build.MustRunCommand("docker", append([]string{"buildx", "imagetools", "create", "--tag", gethImage}, subImages...)...)
+			build.MustRunCommand("docker", "buildx", "build",
+				"--build-arg", "COMMIT="+env.Commit,
+				"--build-arg", "VERSION="+params.VersionWithMeta,
+				"--build-arg", "BUILDNUM="+env.Buildnum,
+				"--tag", gethImage,
+				"--platform", *platform,
+				"--load", "--push",
+				"--file", spec.file, ".")
 		}
 	}
 }
