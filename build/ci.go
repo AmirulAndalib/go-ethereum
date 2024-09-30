@@ -948,7 +948,7 @@ func doDockerBuildx(cmdline []string) {
 				"--build-arg", "BUILDNUM="+env.Buildnum,
 				"--tag", gethImage,
 				"--platform", *platform,
-				"--load", "--push",
+				"--push",
 				"--file", spec.file, ".")
 		}
 	}
