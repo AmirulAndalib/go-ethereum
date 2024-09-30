@@ -945,7 +945,7 @@ func doDockerBuildx(cmdline []string) {
 			gethImage := fmt.Sprintf("%s%s", spec.base, tag)
 			for _, arch := range strings.Split(*manifest, ",") { //amd64. arm64
 				subImage := fmt.Sprintf("%s-%s", gethImage, arch)
-				build.MustRunCommand("docker", "buildx",
+				build.MustRunCommand("docker", "buildx", "build",
 					"--build-arg", "COMMIT="+env.Commit,
 					"--build-arg", "VERSION="+params.VersionWithMeta,
 					"--build-arg", "BUILDNUM="+env.Buildnum,
